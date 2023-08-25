@@ -2,6 +2,7 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import get_object_or_404
+from rest_framework import generics, filters
 
 from .models import Book
 from .serializers import BookSerializer
@@ -71,3 +72,10 @@ class BookDeleteView(APIView):
         book = get_object_or_404(Book, id=book_id)
         book.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    
+class BookSearchView(generics.ListAPIView):
+    queryset = Book.objects.all().order_by('uploaded_at')
+    serializer_class = BookSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'author', 'detail_info']
