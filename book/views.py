@@ -2,7 +2,9 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import get_object_or_404
+
 from rest_framework import generics, filters
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Book
 from .serializers import BookSerializer
@@ -75,7 +77,9 @@ class BookDeleteView(APIView):
     
     
 class BookSearchView(generics.ListAPIView):
-    queryset = Book.objects.all().order_by('uploaded_at')
+    queryset = Book.objects.all()
     serializer_class = BookSerializer
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter,filters.OrderingFilter]
+    filterset_fields = ['sale_condition']
     search_fields = ['title', 'author', 'detail_info']
+    ordering = ['uploaded_at', 'selling_price']
