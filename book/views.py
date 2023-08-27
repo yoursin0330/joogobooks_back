@@ -5,11 +5,12 @@ from rest_framework.generics import get_object_or_404
 
 from rest_framework import generics, filters
 from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import FilterSet
 
 from .models import Book
 from .serializers import BookSerializer
 
-# Create your views here.
+# Create your views here.filterset
 class IsBookAuthor(permissions.BasePermission):
     def has_permission(self, request, view):
         book = view.get_object()
@@ -75,11 +76,19 @@ class BookDeleteView(APIView):
         book.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+class BookSearchFilter(FilterSet):
+
+    class Meta:
+        model = Book
+        fields = {
+            'title':['icontains'],
+            'sale_condition':['exact'],            
+        }
+    
     
 class BookSearchView(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter,filters.OrderingFilter]
-    filterset_fields = ['sale_condition']
-    search_fields = ['title', 'author', 'detail_info']
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = BookSearchFilter
     ordering = ['uploaded_at', 'selling_price']
